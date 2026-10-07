@@ -1,17 +1,19 @@
 # Aeri Learning landing page
 
-A responsive, static Aeri Learning landing page for the free five-page preschool activity pack. It keeps the existing sage, charcoal, warm-cream, beige, and muted-coral design, with the source separated into HTML, CSS, and JavaScript. No framework, build step, or external front-end dependency is required.
+A responsive, static Aeri Learning landing page for the free five-page preschool activity pack. It keeps the existing sage, charcoal, warm-cream, beige, and muted-coral design, with the site source separated into HTML, CSS, and JavaScript. No front-end framework or build step is required.
 
 ## Project structure
 
 ```text
 .
-├── index.html                         # Main landing page
-├── thank-you.html                     # FormSubmit redirect and direct PDF download
+├── index.html                         # Main landing page and Apps Script form
+├── thank-you.html                     # Confirmation page and direct PDF download
 ├── css/
 │   └── style.css                      # Shared landing-page and thank-you-page styles
 ├── js/
-│   └── script.js                      # Form state, animations, dialogs, and mobile CTA
+│   └── script.js                      # Form state, response handling, animations, dialogs, CTA
+├── apps-script/
+│   └── Code.gs                        # Google Apps Script web-app endpoint
 ├── assets/
 │   ├── images/
 │   │   ├── aeri-learning-family.jpg   # Hero photo
@@ -26,9 +28,9 @@ A responsive, static Aeri Learning landing page for the free five-page preschool
     └── image-1.png                    # Original uploaded logo source
 ```
 
-All website links use relative paths so the site also works when published beneath a GitHub Pages project path.
+All website asset and thank-you links are relative, so the static site can be published beneath a GitHub Pages project path.
 
-## Run locally
+## Run the website locally
 
 From the project root, start Python's static-file server:
 
@@ -36,22 +38,25 @@ From the project root, start Python's static-file server:
 python3 -m http.server 8000
 ```
 
-Then open <http://localhost:8000>. To preview on another device on your local network, bind to all interfaces with `python3 -m http.server 8000 --bind 0.0.0.0` and visit the host computer's LAN address.
+Then open <http://localhost:8000>. To preview from another device on your local network, use `python3 -m http.server 8000 --bind 0.0.0.0` and visit the host computer's LAN address.
+
+## Connect the Google Apps Script form
+
+The landing page posts `name`, `email`, a request token, and a honeypot field to the `/exec` web-app URL in the form's `action`. The script validates the fields and adds a timestamp, parent name, and email to the configured spreadsheet tab. The response is returned to a hidden iframe; the page's JavaScript checks its response and sends successful submissions to the local `thank-you.html` page. It does not use FormSubmit or send an automatic email.
+
+1. Create or select the spreadsheet where requests should be stored. The tab must be named `Sheet1`, or update `SHEET_NAME` in `apps-script/Code.gs`.
+2. For a bound script, open **Extensions → Apps Script** from that spreadsheet and paste in `apps-script/Code.gs`. For a standalone script, set `SPREADSHEET_ID` to the ID in the spreadsheet URL.
+3. Deploy the script as a **Web app**. Set **Execute as** to the spreadsheet owner, and choose an access level that allows your intended visitors to submit. Authorize the script when prompted.
+4. Copy the deployment's `/exec` URL into the `action` attribute on the form in `index.html`. The project currently contains the URL supplied for this integration; replace it if you deploy a different web app.
+5. If you change the Apps Script after deployment, update the existing deployment to a new version. A newly created deployment may have a different URL.
+
+The form uses a normal browser POST rather than `fetch`, so it avoids browser CORS handling. Apps Script returns a `postMessage` response to the page; the client checks the hidden iframe and request token before redirecting. The script uses `ALLOWALL` for its response because it must load inside that hidden iframe. Since the web app is publicly reachable, keep the server-side validation and honeypot enabled; add stronger anti-spam controls if needed.
+
+**Testing and privacy:** Do not submit real parent data while testing. Use a test name and email and confirm that a row appears in the intended spreadsheet. The included script only records form requests; it does not email the activity pack automatically. The thank-you page provides a direct download, and any promise to send the pack later requires a separate manual or automated delivery process. Review the privacy notice and spreadsheet access before publishing.
 
 ## Publish with GitHub Pages
 
-Commit the project files and publish the repository root (or the configured folder that contains `index.html`) with GitHub Pages. Keep the `css/`, `js/`, and `assets/` directories alongside the HTML files; don't change their relative links to root-absolute paths. The form's redirect is resolved from the current page URL, so it points to `thank-you.html` on the same published site.
-
-## Form behavior and setup
-
-The form sends a `POST` to `https://formsubmit.co/softwareupload2025@gmail.com` and includes:
-
-- Required parent name (`name="name"`, minimum 2 characters) and parent email (`name="email"`, native email validation).
-- `_captcha=false` and `_subject="New Aeri Learning Free Activity Pack Request"`.
-- A same-site `_next` redirect to `thank-you.html` (set by JavaScript, with a relative HTML fallback).
-- A disabled-button `Sending...` state after submission.
-
-FormSubmit may send an activation email to the recipient before forwarding the first real submission; the mailbox owner needs to confirm it. The confirmation page contains the requested copy and a direct download of the activity pack. An automated follow-up email with the PDF is not configured. Do not use the preview server to submit real parent data; test the final form only after the recipient and privacy details have been verified.
+Commit the project files and publish the repository root (or the configured folder that contains `index.html`). Keep `css/`, `js/`, `apps-script/`, and `assets/` alongside the HTML files; don't change local links to root-absolute paths.
 
 ## Regenerate the activity pack (optional)
 

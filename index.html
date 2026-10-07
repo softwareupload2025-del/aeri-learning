@@ -278,11 +278,12 @@
           </aside>
           <div class="form-panel">
             <div class="form-intro"><h3>Where should we send it?</h3><p>It takes about 30 seconds. No purchase or account needed.</p></div>
-            <form class="lead-form" id="lead-form" action="https://formsubmit.co/softwareupload2025@gmail.com" method="POST">
-              <input type="hidden" name="_captcha" value="false">
-              <input type="hidden" name="_subject" value="New Aeri Learning Free Activity Pack Request">
-              <input type="hidden" name="_next" id="form-next" value="thank-you.html">
-              <input type="hidden" name="source" value="aeri-learning-landing-page">
+            <form class="lead-form" id="lead-form" action="https://script.google.com/macros/s/AKfycbx5egZyFsGavRdD6m3KxmgsorFQdhVwZMsm-DgWamo9HBj6ygEacZAcU0QIX9Z5lm30xg/exec" method="POST">
+              <input type="hidden" name="requestToken" id="request-token" value="">
+              <div class="form-honeypot" aria-hidden="true">
+                <label for="company-website">Leave this field blank</label>
+                <input id="company-website" name="companyWebsite" type="text" tabindex="-1" autocomplete="off">
+              </div>
               <div class="field">
                 <label for="parent-name">Name</label>
                 <input id="parent-name" name="name" type="text" placeholder="e.g. Sarah" autocomplete="name" minlength="2" required>
@@ -295,6 +296,8 @@
                 <button class="button button--wide" id="submit-button" type="submit" aria-live="polite"><span class="submit-label">Send My Free Activity Pack</span><span class="submit-arrow" aria-hidden="true">→</span></button>
               </div>
             </form>
+            <p class="form-status" id="form-status" role="status" aria-live="polite" aria-atomic="true"></p>
+            <iframe id="form-response-frame" name="aeri-apps-script-response" title="Form submission response" hidden></iframe>
             <p class="privacy-line"><svg class="privacy-lock" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M8 10V7a4 4 0 1 1 8 0v3m-4 4v3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>Your details are used to process this request. We never sell your data. <a href="#privacy-dialog" data-dialog="privacy-dialog">Privacy details</a></p>
           </div>
         </div>
@@ -363,7 +366,7 @@
   <dialog class="policy-dialog" id="privacy-dialog" aria-labelledby="privacy-title">
     <div class="dialog-inner">
       <div class="dialog-top"><h2 id="privacy-title">Privacy details</h2><button class="dialog-close" type="button" aria-label="Close privacy details"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button></div>
-      <p>We collect a parent name and email address to receive and respond to the requested activity-pack form submission. The form is processed by FormSubmit.co and forwarded to softwareupload2025@gmail.com. We do not sell personal information. If we offer optional learning emails in the future, we will ask for separate permission and include an unsubscribe option.</p>
+      <p>We collect a parent name and email address to process the requested activity-pack submission. The form is processed by a Google Apps Script web app and stored in the Aeri Learning spreadsheet connected to that script. We do not sell personal information. If we offer optional learning emails in the future, we will ask for separate permission and include an unsubscribe option.</p>
       <p class="dialog-notice"><strong>Before publishing:</strong> Add your organization’s legal name and contact details, email-service provider, retention practices, analytics/cookie details, and any required regional disclosures to this draft policy.</p>
     </div>
   </dialog>
