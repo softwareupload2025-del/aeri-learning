@@ -7,14 +7,17 @@ A responsive, static Aeri Learning landing page for the free five-page preschool
 ```text
 .
 ├── index.html                         # Main landing page and Apps Script form
-├── thanks.html                        # Confirmation page and direct PDF download
-├── README-thanks.md                    # Confirmation-page-specific setup and maintenance notes
+├── thanks/
+│   ├── index.html                     # Standalone confirmation page and direct PDF download
+│   ├── README.md                      # Confirmation-page-specific setup and maintenance notes
+│   ├── css/
+│   │   └── thanks.css                 # Confirmation-page-only responsive styles
+│   └── js/
+│       └── thanks.js                  # Confirmation-page download feedback
 ├── css/
-│   ├── style.css                      # Landing-page styles only
-│   └── thanks.css                     # Standalone confirmation-page styles
+│   └── style.css                      # Landing-page styles only
 ├── js/
-│   ├── script.js                      # Landing form, animations, dialogs, and CTA
-│   └── thanks.js                      # Confirmation-page download feedback
+│   └── script.js                      # Landing form, animations, dialogs, and CTA
 ├── apps-script/
 │   └── Code.gs                        # Google Apps Script web-app endpoint
 ├── assets/
@@ -31,7 +34,7 @@ A responsive, static Aeri Learning landing page for the free five-page preschool
     └── image-1.png                    # Original uploaded logo source
 ```
 
-The confirmation page loads only `css/thanks.css` and `js/thanks.js`; it does not share or import the landing page's `css/style.css` or `js/script.js`. All website asset and thank-you links are relative, so the static site can be published beneath a GitHub Pages project path.
+The `thanks/` folder contains its own page, README, CSS, and JavaScript. The confirmation page does not load or import the landing page's `css/style.css` or `js/script.js`; its links to shared assets are relative. All website paths work beneath a GitHub Pages project path.
 
 ## Run the website locally
 
@@ -49,7 +52,7 @@ The landing page posts `name`, `email`, a request token, and a honeypot field to
 
 1. Create or select the spreadsheet where requests should be stored. The tab must be named `Sheet1`, or update `SHEET_NAME` in `apps-script/Code.gs`.
 2. For a bound script, open **Extensions → Apps Script** from that spreadsheet and paste in `apps-script/Code.gs`. For a standalone script, set `SPREADSHEET_ID` to the ID in the spreadsheet URL.
-3. Deploy the script as a **Web app**. Set **Execute as** to the spreadsheet owner, and choose an access level that allows your intended visitors to submit. Authorize the script when prompted.
+3. Deploy the script as a **Web app**. Set **Execute as** to the spreadsheet owner and **Who has access** to **Anyone** so visitors can submit without Google sign-in. Authorize the script when prompted. If your account or organization does not allow public access, this endpoint cannot accept anonymous submissions; use an approved public form service instead.
 4. Copy the deployment's `/exec` URL into the `action` attribute on the form in `index.html`. The project currently contains the URL supplied for this integration; replace it if you deploy a different web app.
 5. If you change the Apps Script after deployment, update the existing deployment to a new version. A newly created deployment may have a different URL.
 
@@ -59,7 +62,7 @@ The form uses a normal browser POST rather than `fetch`, so it avoids browser CO
 
 ## Publish with GitHub Pages
 
-Commit the project files and publish the repository root (or the configured folder that contains `index.html`). Keep `css/`, `js/`, `apps-script/`, and `assets/` alongside the HTML files; don't change local links to root-absolute paths.
+Commit the project files and publish the repository root (or the configured folder that contains `index.html`). Keep `thanks/`, `css/`, `js/`, `apps-script/`, and `assets/` in the repository; don't change local links to root-absolute paths.
 
 ## Regenerate the activity pack (optional)
 
