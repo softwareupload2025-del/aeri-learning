@@ -8,6 +8,7 @@ A responsive, static Aeri Learning landing page for the free five-page preschool
 .
 ├── index.html                         # Main landing page and Apps Script form
 ├── thanks.html                        # Confirmation page and direct PDF download
+├── README-thanks.md                    # Confirmation-page-specific setup and maintenance notes
 ├── css/
 │   ├── style.css                      # Landing-page styles only
 │   └── thanks.css                     # Standalone confirmation-page styles
@@ -44,7 +45,7 @@ Then open <http://localhost:8000>. To preview from another device on your local 
 
 ## Connect the Google Apps Script form
 
-The landing page posts `name`, `email`, a request token, and a honeypot field to the `/exec` web-app URL in the form's `action`. The script validates the fields and adds a timestamp, parent name, and email to the configured spreadsheet tab. The response is returned to a hidden iframe; the page's JavaScript checks its response and sends successful submissions to the local `thanks.html` page. It does not use FormSubmit or send an automatic email.
+The landing page posts `name`, `email`, a request token, and a honeypot field to the `/exec` web-app URL in the form's `action`. The script validates the fields and adds a timestamp, parent name, and email to the configured spreadsheet tab. The response is returned to a hidden iframe; the page's JavaScript checks its response and redirects successful submissions to `https://softwareupload2025-del.github.io/aeri-learning-thanks/`. It does not use FormSubmit or send an automatic email, and it does not display a standalone `Success` response.
 
 1. Create or select the spreadsheet where requests should be stored. The tab must be named `Sheet1`, or update `SHEET_NAME` in `apps-script/Code.gs`.
 2. For a bound script, open **Extensions → Apps Script** from that spreadsheet and paste in `apps-script/Code.gs`. For a standalone script, set `SPREADSHEET_ID` to the ID in the spreadsheet URL.

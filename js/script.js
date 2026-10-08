@@ -18,7 +18,8 @@ const submitButton = document.getElementById('submit-button');
 const submitLabel = submitButton.querySelector('.submit-label');
 const submitArrow = submitButton.querySelector('.submit-arrow');
 const originalSubmitLabel = submitLabel.textContent;
-const thankYouUrl = new URL('thanks.html', window.location.href).href;
+// Redirect only after Apps Script confirms that the row was saved.
+const successRedirectUrl = 'https://softwareupload2025-del.github.io/aeri-learning-thanks/';
 const responseTimeoutMs = 30000;
 let pendingRequestToken = '';
 let submissionTimeout = null;
@@ -65,7 +66,7 @@ function handleAppsScriptResponse(event) {
 
   if (response.status === 'success') {
     trackLead();
-    window.location.assign(thankYouUrl);
+    window.location.assign(successRedirectUrl);
     return;
   }
 
