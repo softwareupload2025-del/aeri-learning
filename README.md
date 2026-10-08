@@ -8,7 +8,7 @@ A responsive, static Aeri Learning landing page for the free five-page preschool
 .
 ├── index.html                         # Main landing page and Apps Script form
 ├── thanks/
-│   ├── index.html                     # Standalone confirmation page and direct PDF download
+│   ├── index.html                     # Standalone confirmation page and Google Drive pack link
 │   ├── README.md                      # Confirmation-page-specific setup and maintenance notes
 │   ├── css/
 │   │   └── thanks.css                 # Confirmation-page-only responsive styles
@@ -27,7 +27,8 @@ A responsive, static Aeri Learning landing page for the free five-page preschool
 │   ├── icons/
 │   │   └── aeri-learning-mark.png     # Emblem and favicon
 │   └── documents/
-│       └── aeri-learning-activity-pack.pdf
+│       ├── aeri-learning-free-activity-pack.pdf # Download linked from thanks page
+│       └── aeri-learning-activity-pack.pdf      # Optional generator output
 ├── scripts/
 │   └── generate_activity_pack.py     # Source for regenerating the printable PDF
 └── uploads/
@@ -73,4 +74,4 @@ python3 -m pip install Pillow
 python3 scripts/generate_activity_pack.py
 ```
 
-It writes `assets/documents/aeri-learning-activity-pack.pdf`.
+It writes `assets/documents/aeri-learning-activity-pack.pdf`. The thanks page instead downloads the attached final file `assets/documents/aeri-learning-free-activity-pack.pdf`.
