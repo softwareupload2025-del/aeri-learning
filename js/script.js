@@ -18,14 +18,23 @@ const submitButton = document.getElementById('submit-button');
 const submitLabel = submitButton.querySelector('.submit-label');
 const submitArrow = submitButton.querySelector('.submit-arrow');
 const originalSubmitLabel = submitLabel.textContent;
-// Redirect only after Apps Script confirms that the row was saved.
+// Destination used after the Apps Script POST response completes.
 const successRedirectUrl = 'https://softwareupload2025-del.github.io/aeri-learning-thanks/';
 const responseTimeoutMs = 30000;
 let pendingRequestToken = '';
 let submissionTimeout = null;
+let responseFallbackTimeout = null;
+let formResponseReceived = false;
+let redirectStarted = false;
+let responseFrameLoaded = false;
+try {
+  responseFrameLoaded = responseFrame.contentDocument.readyState === 'complete';
+} catch (_error) {
+  // The frame may already be cross-origin; its load event is used below instead.
+}
 
-// Keep the visitor on this page while the Apps Script web app processes the POST.
-// The script responds through postMessage from this hidden iframe.
+// Keep the visitor on this page while Apps Script processes the POST in a hidden iframe.
+// Current deployments use postMessage; the load fallback also supports older text responses.
 form.target = responseFrame.name;
 
 function createRequestToken() {
@@ -54,19 +63,37 @@ function resetSubmitButton() {
   submitArrow.hidden = false;
 }
 
-function handleAppsScriptResponse(event) {
-  if (event.source !== responseFrame.contentWindow) return;
-  const response = event.data;
-  if (!response || response.type !== 'aeri-form-result' || response.token !== pendingRequestToken) return;
-
+function clearSubmissionTimers() {
   if (submissionTimeout !== null) {
     window.clearTimeout(submissionTimeout);
     submissionTimeout = null;
   }
+  if (responseFallbackTimeout !== null) {
+    window.clearTimeout(responseFallbackTimeout);
+    responseFallbackTimeout = null;
+  }
+}
+
+function redirectAfterSave() {
+  if (redirectStarted) return;
+  redirectStarted = true;
+  clearSubmissionTimers();
+  pendingRequestToken = '';
+  trackLead();
+  window.location.assign(successRedirectUrl);
+}
+
+function handleAppsScriptResponse(event) {
+  const response = event.data;
+  // Validate the random per-submission token. Apps Script can send this from a
+  // nested Google frame, so do not require event.source to equal the outer iframe.
+  if (!response || response.type !== 'aeri-form-result' || response.token !== pendingRequestToken) return;
+
+  formResponseReceived = true;
+  clearSubmissionTimers();
 
   if (response.status === 'success') {
-    trackLead();
-    window.location.assign(successRedirectUrl);
+    redirectAfterSave();
     return;
   }
 
@@ -75,6 +102,22 @@ function handleAppsScriptResponse(event) {
   setFormStatus(response.message || 'We could not save your request. Please try again.', 'error');
 }
 
+function handleResponseFrameLoad() {
+  if (!responseFrameLoaded) {
+    responseFrameLoaded = true;
+    return;
+  }
+  if (form.dataset.submitting !== 'true' || formResponseReceived) return;
+
+  // A legacy Apps Script deployment may return plain text (for example, "Success")
+  // instead of postMessage. The hidden-frame load means the POST has completed.
+  responseFallbackTimeout = window.setTimeout(() => {
+    responseFallbackTimeout = null;
+    if (form.dataset.submitting === 'true' && !formResponseReceived) redirectAfterSave();
+  }, 500);
+}
+
+responseFrame.addEventListener('load', handleResponseFrameLoad);
 window.addEventListener('message', handleAppsScriptResponse);
 
 form.addEventListener('submit', (event) => {
@@ -88,6 +131,9 @@ form.addEventListener('submit', (event) => {
     return;
   }
 
+  clearSubmissionTimers();
+  formResponseReceived = false;
+  redirectStarted = false;
   pendingRequestToken = createRequestToken();
   requestTokenField.value = pendingRequestToken;
   form.dataset.submitting = 'true';
@@ -99,6 +145,8 @@ form.addEventListener('submit', (event) => {
 
   submissionTimeout = window.setTimeout(() => {
     if (form.dataset.submitting !== 'true') return;
+    clearSubmissionTimers();
+    formResponseReceived = true;
     pendingRequestToken = '';
     resetSubmitButton();
     setFormStatus('We could not confirm the submission. It may have been saved; wait a moment before trying again to avoid a duplicate.', 'error');
